@@ -1,41 +1,231 @@
-import { useState, type FormEvent } from 'react'
-import { defaultWhatsAppMessage, whatsappHref } from '../config'
+import { useEffect, useRef, useState } from 'react'
+import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
+import {
+  defaultWhatsAppMessage,
+  formatIndianPhone,
+  phonePattern,
+  whatsappHref,
+} from '../config'
+import { bouquets } from '../data'
+import type { VisitorDetails } from './VisitorDetailsModal'
+
+function getTodayDate() {
+  const today = new Date()
+  const offset = today.getTimezoneOffset() * 60000
+  return new Date(today.getTime() - offset).toISOString().slice(0, 10)
+}
 
 const initial = {
   name: '',
   phone: '',
   occasion: '',
   budget: '',
-  currency: '',
+  collection: '',
+  currency: [] as string[],
   flowers: '',
   wrapping: '',
+  wrappingNote: '',
   message: '',
-  date: '',
+  additionalDetails: '',
+  date: getTodayDate(),
 }
 
-export function CustomForm() {
-  const [form, setForm] = useState(initial)
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>(
-    'idle',
-  )
+const currencyOptions = ['₹10', '₹20', '₹50', '₹100', '₹200', '₹500']
+const weekDays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 
-  function update(key: keyof typeof initial, value: string) {
+function dateFromValue(value: string) {
+  const [year, month, day] = value.split('-').map(Number)
+  return new Date(year, month - 1, day)
+}
+
+function dateValue(date: Date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+}
+
+function CustomSelect({
+  value,
+  placeholder,
+  options,
+  onChange,
+}: {
+  value: string
+  placeholder: string
+  options: string[]
+  onChange: (value: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const selectRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function closeOnOutsideClick(event: PointerEvent) {
+      if (!selectRef.current?.contains(event.target as Node)) setOpen(false)
+    }
+    document.addEventListener('pointerdown', closeOnOutsideClick)
+    return () => document.removeEventListener('pointerdown', closeOnOutsideClick)
+  }, [])
+
+  return (
+    <div className="custom-select" ref={selectRef}>
+      <button
+        className="custom-select__trigger"
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+      >
+        <span className={value ? '' : 'is-placeholder'}>{value || placeholder}</span>
+        <ChevronDown size={18} aria-hidden="true" />
+      </button>
+      {open ? (
+        <div className="custom-select__menu" role="listbox">
+          {options.map((option) => (
+            <button
+              className={option === value ? 'is-selected' : ''}
+              type="button"
+              role="option"
+              aria-selected={option === value}
+              key={option}
+              onClick={() => {
+                onChange(option)
+                setOpen(false)
+              }}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+function DatePicker({
+  value,
+  min,
+  onChange,
+}: {
+  value: string
+  min: string
+  onChange: (value: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const [viewDate, setViewDate] = useState(() => dateFromValue(value || min))
+  const monthStart = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1)
+  const daysInMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate()
+  const leadingDays = monthStart.getDay()
+  const days = Array.from({ length: leadingDays + daysInMonth }, (_, index) =>
+    index < leadingDays ? null : index - leadingDays + 1,
+  )
+  const minimumDate = dateFromValue(min)
+  const monthLabel = viewDate.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })
+  const selectedLabel = dateFromValue(value).toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  })
+
+  return (
+    <div className="date-picker">
+      <button
+        className="date-picker__trigger"
+        type="button"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+      >
+        <span>{selectedLabel}</span>
+        <CalendarDays size={19} strokeWidth={1.8} aria-hidden="true" />
+      </button>
+      {open ? (
+        <div className="date-picker__popover" role="dialog" aria-label="Choose delivery date">
+          <div className="date-picker__header">
+            <button
+              type="button"
+              aria-label="Previous month"
+              disabled={
+                viewDate.getFullYear() === minimumDate.getFullYear() &&
+                viewDate.getMonth() === minimumDate.getMonth()
+              }
+              onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))}
+            >
+              <ChevronLeft size={18} aria-hidden="true" />
+            </button>
+            <strong>{monthLabel}</strong>
+            <button
+              type="button"
+              aria-label="Next month"
+              onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))}
+            >
+              <ChevronRight size={18} aria-hidden="true" />
+            </button>
+          </div>
+          <div className="date-picker__weekdays">
+            {weekDays.map((day) => <span key={day}>{day}</span>)}
+          </div>
+          <div className="date-picker__grid">
+            {days.map((day, index) => {
+              if (!day) return <span className="date-picker__empty" key={`empty-${index}`} />
+              const currentDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), day)
+              const currentValue = dateValue(currentDate)
+              const disabled = currentValue < min
+              return (
+                <button
+                  className={currentValue === value ? 'is-selected' : ''}
+                  type="button"
+                  disabled={disabled}
+                  key={currentValue}
+                  onClick={() => {
+                    onChange(currentValue)
+                    setOpen(false)
+                  }}
+                >
+                  {day}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+type CustomFormProps = {
+  visitorDetails: VisitorDetails | null
+}
+
+export function CustomForm({ visitorDetails }: CustomFormProps) {
+  const wrappingNoteRef = useRef<HTMLInputElement>(null)
+  const [form, setForm] = useState(() => ({
+    ...initial,
+    name: visitorDetails?.name ?? '',
+    phone: formatIndianPhone(visitorDetails?.phone ?? ''),
+  }))
+  const today = getTodayDate()
+
+  useEffect(() => {
+    if (form.wrapping === 'Add a note') {
+      wrappingNoteRef.current?.focus()
+    }
+  }, [form.wrapping])
+
+  function update(key: keyof typeof initial, value: string | string[]) {
     setForm((prev) => ({ ...prev, [key]: value }))
   }
 
-  function onSubmit(e: FormEvent) {
-    e.preventDefault()
-    if (!form.name.trim() || !form.phone.trim() || !form.occasion) {
-      setStatus('error')
-      return
-    }
-    setStatus('submitting')
-    window.setTimeout(() => setStatus('success'), 600)
+  function toggleCurrency(value: string) {
+    const currency = form.currency.includes(value)
+      ? form.currency.filter((item) => item !== value)
+      : [...form.currency, value]
+    update('currency', currency)
   }
 
   const waPreview = whatsappHref(
-    `Hello The Trendy Touch, I would like a custom bouquet.\nName: ${form.name || '—'}\nPhone: ${form.phone || '—'}\nOccasion: ${form.occasion || '—'}\nBudget: ${form.budget || '—'}\nCurrency value: ${form.currency || '—'}\nFlowers: ${form.flowers || '—'}\nWrapping: ${form.wrapping || '—'}\nDelivery: ${form.date || '—'}\nMessage: ${form.message || '—'}`,
+    `Hello The Trendy Touch, I would like a custom bouquet.\n\nName: ${form.name || '—'}\nPhone: ${form.phone || '—'}\nOccasion: ${form.occasion || '—'}\nInspiration: ${form.collection || '—'}\nBudget: ${form.budget || '—'}\nCurrency values: ${form.currency.length ? form.currency.join(', ') : '—'}\nFlowers: ${form.flowers || '—'}\nWrapping: ${form.wrapping || '—'}${form.wrappingNote ? `\nWrapping note: ${form.wrappingNote}` : ''}\nDelivery date: ${form.date || '—'}\nPersonal message: ${form.message || '—'}\nAdditional details: ${form.additionalDetails || '—'}`,
   )
+  const chatMessage = visitorDetails
+    ? `Hello The Trendy Touch, this is ${visitorDetails.name} (${visitorDetails.phone}). I would like to discuss a custom bouquet.`
+    : defaultWhatsAppMessage
 
   return (
     <section id="create" className="section">
@@ -54,26 +244,16 @@ export function CustomForm() {
           </ul>
           <a
             className="btn btn--ghost"
-            href={whatsappHref(defaultWhatsAppMessage)}
+            href={whatsappHref(chatMessage)}
             target="_blank"
             rel="noreferrer"
           >
             Prefer WhatsApp? Chat with us
           </a>
         </div>
-
         <div className="create__panel reveal">
-          {status === 'success' ? (
-            <div className="form-success" role="status">
-              <h3>Thank you! We&apos;ve received your request.</h3>
-              <p>We&apos;ll contact you shortly to confirm the details.</p>
-              <a className="btn btn--primary" href={waPreview} target="_blank" rel="noreferrer">
-                Continue on WhatsApp
-              </a>
-            </div>
-          ) : (
-            <form className="form" onSubmit={onSubmit} noValidate>
-              <div className="form__row">
+          <div className="form">
+            <div className="form__row">
                 <label>
                   Name
                   <input
@@ -89,9 +269,11 @@ export function CustomForm() {
                   <input
                     name="phone"
                     type="tel"
+                    pattern={phonePattern}
+                    title="Enter a valid 10-digit Indian mobile number, for example 8708193753."
                     autoComplete="tel"
                     value={form.phone}
-                    onChange={(e) => update('phone', e.target.value)}
+                    onChange={(e) => update('phone', formatIndianPhone(e.target.value))}
                     required
                   />
                 </label>
@@ -99,50 +281,77 @@ export function CustomForm() {
               <div className="form__row">
                 <label>
                   Occasion
-                  <select
+                  <CustomSelect
                     value={form.occasion}
-                    onChange={(e) => update('occasion', e.target.value)}
-                    required
-                  >
-                    <option value="">Select occasion</option>
-                    <option>Birthday</option>
-                    <option>Anniversary</option>
-                    <option>Wedding</option>
-                    <option>Proposal</option>
-                    <option>Congratulations</option>
-                    <option>Corporate</option>
-                    <option>Other</option>
-                  </select>
+                    placeholder="Select occasion"
+                    options={['Birthday', 'Anniversary', 'Wedding', 'Proposal', 'Congratulations', 'Corporate', 'Other']}
+                    onChange={(value) => update('occasion', value)}
+                  />
                 </label>
                 <label>
                   Approximate Budget
-                  <select
+                  <CustomSelect
                     value={form.budget}
-                    onChange={(e) => update('budget', e.target.value)}
-                  >
-                    <option value="">Select budget</option>
-                    <option>₹1,000–₹2,000</option>
-                    <option>₹2,000–₹3,000</option>
-                    <option>₹3,000–₹5,000</option>
-                    <option>₹5,000+</option>
-                  </select>
+                    placeholder="Select budget"
+                    options={['₹500–₹1,000', '₹1,000–₹2,000', '₹2,000–₹3,000', '₹3,000–₹5,000', '₹5,000+']}
+                    onChange={(value) => update('budget', value)}
+                  />
+                </label>
+              </div>
+              <div className="form__row">
+                <fieldset className="currency-fieldset">
+                  <legend>Currency Note Value</legend>
+                  <div className="currency-options" role="group" aria-label="Currency note values">
+                    {currencyOptions.map((value) => (
+                      <button
+                        className={form.currency.includes(value) ? 'is-selected' : ''}
+                        type="button"
+                        aria-pressed={form.currency.includes(value)}
+                        onClick={() => toggleCurrency(value)}
+                        key={value}
+                      >
+                        {value}
+                      </button>
+                    ))}
+                  </div>
+                </fieldset>
+                <label>
+                  Choose from Collection
+                  <CustomSelect
+                    value={form.collection}
+                    placeholder="Select a collection piece"
+                    options={[...bouquets.map((item) => item.name), 'Other']}
+                    onChange={(value) => update('collection', value)}
+                  />
                 </label>
               </div>
               <div className="form__row">
                 <label>
-                  Currency Note Value
-                  <select
-                    value={form.currency}
-                    onChange={(e) => update('currency', e.target.value)}
-                  >
-                    <option value="">Select value</option>
-                    <option>₹500</option>
-                    <option>₹1,000</option>
-                    <option>₹2,000</option>
-                    <option>₹5,000</option>
-                    <option>₹10,000+</option>
-                  </select>
+                  Wrapping Style
+                  <CustomSelect
+                    value={form.wrapping}
+                    placeholder="Select style"
+                    options={['Blush tissue', 'Champagne wrap', 'Burgundy ribbon', 'Black and gold wrap', 'Pink satin bow', 'Add a note']}
+                    onChange={(value) => update('wrapping', value)}
+                  />
                 </label>
+                <label>
+                  Wrapping Note
+                  <input
+                    ref={wrappingNoteRef}
+                    value={form.wrappingNote}
+                    onChange={(e) => update('wrappingNote', e.target.value)}
+                    placeholder={
+                      form.wrapping
+                        ? 'Add a wrapping note (optional)'
+                        : 'Select a wrapping style first'
+                    }
+                    required={form.wrapping === 'Add a note'}
+                    disabled={!form.wrapping}
+                  />
+                </label>
+              </div>
+              <div className="form__row">
                 <label>
                   Preferred Flowers
                   <input
@@ -151,23 +360,9 @@ export function CustomForm() {
                     placeholder="Roses, lilies, mixed…"
                   />
                 </label>
-              </div>
-              <div className="form__row">
-                <label>
-                  Wrapping Style
-                  <input
-                    value={form.wrapping}
-                    onChange={(e) => update('wrapping', e.target.value)}
-                    placeholder="Blush tissue, champagne, burgundy ribbon…"
-                  />
-                </label>
                 <label>
                   Required Delivery Date
-                  <input
-                    type="date"
-                    value={form.date}
-                    onChange={(e) => update('date', e.target.value)}
-                  />
+                  <DatePicker value={form.date} min={today} onChange={(value) => update('date', value)} />
                 </label>
               </div>
               <label>
@@ -179,21 +374,23 @@ export function CustomForm() {
                   placeholder="A few words for the card…"
                 />
               </label>
-              {status === 'error' ? (
-                <p className="form__error">Please add your name, phone and occasion.</p>
-              ) : null}
+              <label>
+                Additional Details
+                <textarea
+                  rows={3}
+                  value={form.additionalDetails}
+                  onChange={(e) => update('additionalDetails', e.target.value)}
+                  placeholder="Any other request, reference, colour, quantity or delivery detail…"
+                />
+              </label>
               <div className="form__actions">
-                <button className="btn btn--primary" type="submit" disabled={status === 'submitting'}>
-                  {status === 'submitting' ? 'Sending…' : 'Request My Bouquet'}
-                </button>
-                <a className="btn btn--ghost" href={waPreview} target="_blank" rel="noreferrer">
+                <a className="btn btn--primary" href={waPreview} target="_blank" rel="noreferrer">
                   Send via WhatsApp
                 </a>
               </div>
-            </form>
-          )}
+            </div>
+          </div>
         </div>
-      </div>
     </section>
   )
 }

@@ -1,29 +1,25 @@
 import logo from './assets/logoTTT.jpeg'
-import hero from './assets/hero-bouquet.png'
-import classic from './assets/bouquet-classic-rose.png'
-import premium from './assets/bouquet-premium-money.png'
-import luxury from './assets/bouquet-luxury.png'
-import heart from './assets/bouquet-heart.png'
-import anniversary from './assets/bouquet-anniversary.png'
-import custom from './assets/bouquet-custom.png'
-import about from './assets/about-process.png'
-import birthday from './assets/gallery-birthday.png'
-import wedding from './assets/gallery-wedding.png'
-import chocolate from './assets/gallery-chocolate.png'
-import wrapping from './assets/gallery-wrapping.png'
+import b1 from './assets/extra/b1.jpg'
+import b2 from './assets/extra/b2.jpg'
+import b3 from './assets/extra/b3.jpg'
+import b4 from './assets/extra/b4.jpg'
 
 export const images = {
   logo,
-  hero,
-  classic,
-  premium,
-  luxury,
-  heart,
-  anniversary,
-  custom,
-  about,
-  birthday,
-  wedding,
-  chocolate,
-  wrapping,
+  hero: b1,
+  classic: b1,
+  premium: b2,
+  luxury: b3,
+  heart: b4,
+  anniversary: b1,
+  custom: b2,
+  about: b2,
+  birthday: b3,
+  wedding: b4,
+  chocolate: b1,
+  wrapping: b2,
+  b1,
+  b2,
+  b3,
+  b4,
 }

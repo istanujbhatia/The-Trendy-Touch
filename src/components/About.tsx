@@ -1,4 +1,5 @@
 import { images } from '../images'
+import { whyUsFeatures } from '../data'
 
 export function About() {
   return (
@@ -30,6 +31,21 @@ export function About() {
             <li>Unique Gifting</li>
             <li>Made With Love</li>
           </ul>
+        </div>
+      </div>
+      <div className="container about__why">
+        <header className="section__head reveal">
+          <p className="eyebrow">The Difference</p>
+          <h2>Why Choose The Trendy Touch?</h2>
+        </header>
+        <div className="feature-grid">
+          {whyUsFeatures.map((item, index) => (
+            <article key={item.title} className="feature-card reveal">
+              <span className="feature-card__num">0{index + 1}</span>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </article>
+          ))}
         </div>
       </div>
     </section>

@@ -1,18 +1,21 @@
 import { useState } from 'react'
+import { Camera, MessageCircle, Phone } from 'lucide-react'
 import { images } from '../images'
 import { brand, contact, defaultWhatsAppMessage, whatsappHref } from '../config'
+import { ReviewModal } from './ReviewModal'
 
 const links = [
   { href: '#home', label: 'Home' },
-  { href: '#bouquets', label: 'Bouquets' },
+  { href: '#bouquets', label: 'Collection' },
   { href: '#occasions', label: 'Occasions' },
-  { href: '#how-it-works', label: 'How It Works' },
+  { href: '#how-it-works', label: 'Order' },
   { href: '#about', label: 'About' },
   { href: '#contact', label: 'Contact' },
 ]
 
 export function Footer() {
   const [legal, setLegal] = useState<'privacy' | 'terms' | null>(null)
+  const [showReview, setShowReview] = useState(false)
 
   return (
     <footer className="footer">
@@ -37,13 +40,18 @@ export function Footer() {
         <div>
           <h3>Connect</h3>
           <nav className="footer__links">
-            <a href={contact.instagramUrl} target="_blank" rel="noreferrer">
+            <a className="footer__contact-link" href={contact.instagramUrl} target="_blank" rel="noreferrer">
+              <Camera size={17} strokeWidth={1.8} aria-hidden="true" />
               Instagram
             </a>
-            <a href={whatsappHref(defaultWhatsAppMessage)} target="_blank" rel="noreferrer">
+            <a className="footer__contact-link" href={whatsappHref(defaultWhatsAppMessage)} target="_blank" rel="noreferrer">
+              <MessageCircle size={17} strokeWidth={1.8} aria-hidden="true" />
               WhatsApp
             </a>
-            <a href={`tel:${contact.phoneTel}`}>{contact.phoneDisplay}</a>
+            <a className="footer__contact-link" href={`tel:${contact.phoneTel}`}>
+              <Phone size={17} strokeWidth={1.8} aria-hidden="true" />
+              {contact.phoneDisplay}
+            </a>
             <p>{contact.location}</p>
           </nav>
         </div>
@@ -51,6 +59,9 @@ export function Footer() {
       <div className="container footer__bar">
         <p>© 2026 The Trendy Touch. All Rights Reserved.</p>
         <div>
+          <button type="button" onClick={() => setShowReview(true)}>
+            Give a review
+          </button>
           <button type="button" onClick={() => setLegal('privacy')}>
             Privacy Policy
           </button>
@@ -87,6 +98,7 @@ export function Footer() {
           </div>
         </div>
       ) : null}
+      {showReview ? <ReviewModal onClose={() => setShowReview(false)} /> : null}
     </footer>
   )
 }

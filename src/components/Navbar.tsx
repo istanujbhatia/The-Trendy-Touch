@@ -1,20 +1,34 @@
 import { useEffect, useState } from 'react'
+import { Menu, Moon, Sun, UserRound, X } from 'lucide-react'
 import { images } from '../images'
 import { brand } from '../config'
-import { defaultWhatsAppMessage, whatsappHref } from '../config'
 
 const links = [
   { href: '#home', label: 'Home' },
-  { href: '#bouquets', label: 'Bouquets' },
+  { href: '#bouquets', label: 'Collection' },
   { href: '#occasions', label: 'Occasions' },
-  { href: '#how-it-works', label: 'How It Works' },
+  { href: '#how-it-works', label: 'Order' },
   { href: '#about', label: 'About' },
   { href: '#contact', label: 'Contact' },
 ]
 
-export function Navbar() {
+type NavbarProps = {
+  visitorName?: string
+  onProfileClick: () => void
+  onWhatsAppClick: () => void
+}
+
+export function Navbar({ visitorName, onProfileClick, onWhatsAppClick }: NavbarProps) {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [darkMode, setDarkMode] = useState(
+    () => window.localStorage.getItem('trendy-touch-theme') !== 'light',
+  )
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = darkMode ? 'dark' : 'light'
+    window.localStorage.setItem('trendy-touch-theme', darkMode ? 'dark' : 'light')
+  }, [darkMode])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12)
@@ -47,14 +61,31 @@ export function Navbar() {
         </nav>
 
         <div className="nav__actions">
-          <a
+          <button
+            className="nav__profile"
+            type="button"
+            aria-label={visitorName ? `Edit profile for ${visitorName}` : 'Add profile details'}
+            title={visitorName ? `Edit ${visitorName}'s details` : 'Add profile details'}
+            onClick={onProfileClick}
+          >
+            <UserRound size={19} strokeWidth={1.8} />
+          </button>
+          <button
+            className="nav__theme"
+            type="button"
+            aria-pressed={darkMode}
+            aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+            onClick={() => setDarkMode((value) => !value)}
+          >
+            {darkMode ? <Sun size={20} strokeWidth={1.8} /> : <Moon size={20} strokeWidth={1.8} />}
+          </button>
+          <button
             className="btn btn--primary nav__wa"
-            href={whatsappHref(defaultWhatsAppMessage)}
-            target="_blank"
-            rel="noreferrer"
+            type="button"
+            onClick={onWhatsAppClick}
           >
             WhatsApp Us
-          </a>
+          </button>
           <button
             className="nav__toggle"
             type="button"
@@ -62,9 +93,7 @@ export function Navbar() {
             aria-label={open ? 'Close menu' : 'Open menu'}
             onClick={() => setOpen((v) => !v)}
           >
-            <span />
-            <span />
-            <span />
+            {open ? <X size={21} strokeWidth={1.8} /> : <Menu size={21} strokeWidth={1.8} />}
           </button>
         </div>
       </div>
@@ -76,15 +105,16 @@ export function Navbar() {
               {link.label}
             </a>
           ))}
-          <a
+          <button
             className="btn btn--primary"
-            href={whatsappHref(defaultWhatsAppMessage)}
-            target="_blank"
-            rel="noreferrer"
-            onClick={() => setOpen(false)}
+            type="button"
+            onClick={() => {
+              onWhatsAppClick()
+              setOpen(false)
+            }}
           >
             WhatsApp Us
-          </a>
+          </button>
         </div>
       ) : null}
     </header>

@@ -1,23 +1,37 @@
 import { useState, type FormEvent } from 'react'
-import { contact, defaultWhatsAppMessage, whatsappHref } from '../config'
+import {
+  contact,
+  defaultWhatsAppMessage,
+  formatIndianPhone,
+  isValidIndianPhone,
+  normalizeIndianPhone,
+  phonePattern,
+  whatsappHref,
+} from '../config'
+import type { VisitorDetails } from './VisitorDetailsModal'
 
-export function Contact() {
-  const [sent, setSent] = useState(false)
+type ContactProps = {
+  visitorDetails: VisitorDetails | null
+}
+
+export function Contact({ visitorDetails }: ContactProps) {
+  const [name, setName] = useState(visitorDetails?.name ?? '')
+  const [phone, setPhone] = useState(formatIndianPhone(visitorDetails?.phone ?? ''))
+  const [note, setNote] = useState('')
+  const chatMessage = visitorDetails
+    ? `Hello The Trendy Touch, this is ${visitorDetails.name} (${visitorDetails.phone}). I would like to discuss my gift requirements.`
+    : defaultWhatsAppMessage
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    const data = new FormData(e.currentTarget)
-    const name = String(data.get('name') || '')
-    const phone = String(data.get('phone') || '')
-    const note = String(data.get('note') || '')
-    if (!name || !phone) return
+    if (!name || !phone || !isValidIndianPhone(phone)) return
+    const normalizedPhone = normalizeIndianPhone(phone)
     window.open(
       whatsappHref(
-        `Hello The Trendy Touch, ${name} (${phone}) would like to get in touch. ${note}`,
+        `Hello The Trendy Touch, ${name} (${normalizedPhone}) would like to get in touch. ${note}`,
       ),
       '_blank',
     )
-    setSent(true)
   }
 
   return (
@@ -37,7 +51,7 @@ export function Contact() {
             </li>
             <li>
               <span>WhatsApp</span>
-              <a href={whatsappHref(defaultWhatsAppMessage)} target="_blank" rel="noreferrer">
+              <a href={whatsappHref(chatMessage)} target="_blank" rel="noreferrer">
                 Chat with us
               </a>
             </li>
@@ -58,33 +72,46 @@ export function Contact() {
           </ul>
         </div>
         <div className="create__panel reveal">
-          {sent ? (
-            <div className="form-success" role="status">
-              <h3>Opening WhatsApp…</h3>
-              <p>If it didn&apos;t open, tap the button below.</p>
-              <a className="btn btn--primary" href={whatsappHref(defaultWhatsAppMessage)} target="_blank" rel="noreferrer">
-                WhatsApp Us
-              </a>
-            </div>
-          ) : (
-            <form className="form" onSubmit={onSubmit}>
+          <form className="form" onSubmit={onSubmit}>
               <label>
                 Name
-                <input name="name" required autoComplete="name" />
+                <input
+                  name="name"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  required
+                  autoComplete="name"
+                />
               </label>
               <label>
                 Phone
-                <input name="phone" type="tel" required autoComplete="tel" />
+                <input
+                  name="phone"
+                  value={phone}
+                  onChange={(event) => setPhone(formatIndianPhone(event.target.value))}
+                  type="tel"
+                  inputMode="tel"
+                  maxLength={16}
+                  pattern={phonePattern}
+                  title="Enter a valid number in this format: +91 870-819-3753."
+                  required
+                  autoComplete="tel"
+                />
               </label>
               <label>
                 How can we help?
-                <textarea name="note" rows={4} placeholder="Occasion, date, anything we should know…" />
+                <textarea
+                  name="note"
+                  value={note}
+                  onChange={(event) => setNote(event.target.value)}
+                  rows={4}
+                  placeholder="Occasion, date, anything we should know…"
+                />
               </label>
               <button className="btn btn--primary" type="submit">
                 Send via WhatsApp
               </button>
-            </form>
-          )}
+          </form>
         </div>
       </div>
     </section>

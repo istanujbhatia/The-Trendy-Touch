@@ -19,7 +19,7 @@ export function Gallery() {
       <div className="container">
         <header className="section__head reveal">
           <p className="eyebrow">Inspiration</p>
-          <h2>A Little Inspiration</h2>
+          <h2>Inspiration Gallery</h2>
         </header>
         <div className="filters" role="tablist" aria-label="Gallery filters">
           {filters.map((item) => (
@@ -35,7 +35,7 @@ export function Gallery() {
         </div>
         <div className="masonry">
           {items.map((item) => (
-            <figure key={item.src + item.alt} className="masonry__item reveal">
+            <figure key={item.src + item.alt} className="masonry__item">
               <img src={item.src} alt={item.alt} />
             </figure>
           ))}

@@ -15,6 +15,16 @@
   --sans: 'Manrope', system-ui, sans-serif;
 }
 
+:root[data-theme='dark'] {
+  --warm-white: #171416;
+  --light-pink: #241a1d;
+  --blush: #4d2732;
+  --charcoal: #f5edef;
+  --muted: #cbbfc2;
+  --border: rgba(255, 255, 255, 0.12);
+  --shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+}
+
 *,
 *::before,
 *::after {
@@ -249,6 +259,42 @@ p {
   display: none;
 }
 
+.nav__theme {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--charcoal);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.nav__profile {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--charcoal);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  cursor: pointer;
+}
+
+.nav__profile:hover {
+  background: var(--light-pink);
+}
+
+.nav__theme:hover {
+  background: var(--light-pink);
+}
+
 .nav__toggle {
   width: 42px;
   height: 42px;
@@ -257,15 +303,11 @@ p {
   border-radius: 10px;
   display: grid;
   place-content: center;
-  gap: 5px;
   padding: 0;
 }
 
-.nav__toggle span {
-  display: block;
-  width: 16px;
-  height: 1.5px;
-  background: var(--charcoal);
+.nav__toggle svg {
+  color: var(--charcoal);
 }
 
 .nav__drawer {
@@ -382,6 +424,12 @@ p {
   aspect-ratio: 4 / 5;
   object-fit: cover;
   transition: transform 0.45s ease;
+}
+
+.product-card__image--top {
+  object-fit: contain !important;
+  object-position: top;
+  background: var(--light-pink);
 }
 
 .product-card:hover img {
@@ -562,6 +610,10 @@ p {
   gap: 0.9rem;
 }
 
+.form__row--single {
+  grid-template-columns: 1fr;
+}
+
 .form label {
   display: grid;
   gap: 0.4rem;
@@ -570,22 +622,329 @@ p {
   color: var(--charcoal);
 }
 
+.currency-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--charcoal);
+}
+
+.currency-fieldset legend {
+  margin-bottom: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
 .form input,
 .form select,
 .form textarea {
   width: 100%;
-  border: 1px solid var(--border);
+  min-height: 48px;
+  border: 1px solid rgba(217, 106, 134, 0.28);
   border-radius: 12px;
-  padding: 0.75rem 0.85rem;
+  padding: 0.75rem 1rem;
   background: var(--warm-white);
   color: var(--charcoal);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.form select {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.form select:hover {
+  border-color: var(--rose);
+  background: var(--light-pink);
+}
+
+.form select option {
+  background: var(--warm-white);
+  color: var(--charcoal);
+  padding: 0.7rem;
+}
+
+.custom-select {
+  position: relative;
+}
+
+.custom-select__trigger {
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  border: 1px solid rgba(217, 106, 134, 0.28);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  background: var(--warm-white);
+  color: var(--charcoal);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+}
+
+.custom-select__trigger:hover,
+.custom-select__trigger[aria-expanded='true'] {
+  border-color: var(--rose);
+  background: var(--light-pink);
+  box-shadow: 0 0 0 2px rgba(217, 106, 134, 0.14);
+}
+
+.custom-select__trigger .is-placeholder {
+  color: var(--muted);
+}
+
+.custom-select__trigger svg {
+  flex: 0 0 auto;
+  color: var(--burgundy);
+}
+
+.custom-select__menu {
+  position: absolute;
+  inset: calc(100% + 0.4rem) 0 auto;
+  z-index: 20;
+  display: grid;
+  gap: 0.2rem;
+  max-height: 250px;
+  overflow-y: auto;
+  padding: 0.4rem;
+  border: 1px solid var(--rose);
+  border-radius: 12px;
+  background: var(--warm-white);
+  box-shadow: 0 18px 35px rgba(0, 0, 0, 0.28);
+  scrollbar-width: thin;
+  scrollbar-color: var(--burgundy) transparent;
+}
+
+.custom-select__menu::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-select__menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-select__menu::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--burgundy);
+}
+
+.custom-select__menu::-webkit-scrollbar-thumb:hover {
+  background: var(--rose);
+}
+
+.custom-select__menu button {
+  border: 0;
+  border-radius: 8px;
+  padding: 0.7rem 0.8rem;
+  background: transparent;
+  color: var(--charcoal);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.custom-select__menu button:hover,
+.custom-select__menu button.is-selected {
+  background: var(--light-pink);
+  color: var(--burgundy);
+}
+
+:root[data-theme='dark'] .custom-select__menu {
+  background: #211b1e;
+}
+
+:root[data-theme='dark'] .custom-select__menu button:hover,
+:root[data-theme='dark'] .custom-select__menu button.is-selected {
+  background: #38252b;
+  color: #f5edef;
 }
 
 .form input:focus,
 .form select:focus,
 .form textarea:focus {
-  outline: 2px solid rgba(183, 46, 85, 0.25);
+  outline: 2px solid rgba(217, 106, 134, 0.22);
   border-color: var(--rose);
+  box-shadow: 0 6px 18px rgba(142, 31, 63, 0.12);
+}
+
+.date-picker {
+  position: relative;
+}
+
+.date-picker__trigger {
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.75rem 0.85rem;
+  background: var(--warm-white);
+  color: var(--charcoal);
+  cursor: pointer;
+  text-align: left;
+}
+
+.date-picker__trigger:hover,
+.date-picker__trigger[aria-expanded='true'] {
+  border-color: var(--rose);
+  box-shadow: 0 0 0 2px rgba(217, 106, 134, 0.16);
+}
+
+.date-picker__trigger svg {
+  color: var(--burgundy);
+}
+
+.date-picker__popover {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 0.5rem);
+  z-index: 10;
+  width: min(320px, 100%);
+  padding: 1rem;
+  border: 1px solid var(--rose);
+  border-radius: 16px;
+  background: #302226;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+}
+
+.date-picker__header,
+.date-picker__weekdays,
+.date-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.3rem;
+}
+
+.date-picker__header {
+  grid-template-columns: 36px 1fr 36px;
+  align-items: center;
+  margin-bottom: 0.9rem;
+  text-align: center;
+  color: #fff4df;
+}
+
+.date-picker__header button {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--burgundy);
+  cursor: pointer;
+}
+
+.date-picker__header button:hover:not(:disabled) {
+  background: var(--light-pink);
+}
+
+.date-picker__header button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.date-picker__weekdays {
+  margin-bottom: 0.4rem;
+  color: #d9c9cc;
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+.date-picker__grid button,
+.date-picker__empty {
+  min-height: 34px;
+}
+
+.date-picker__grid button {
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: #fff8f4;
+  cursor: pointer;
+}
+
+.date-picker__grid button:hover:not(:disabled) {
+  border-color: var(--rose);
+  background: var(--light-pink);
+}
+
+.date-picker__grid button.is-selected {
+  background: var(--burgundy);
+  color: white;
+  font-weight: 800;
+}
+
+.date-picker__grid button:disabled {
+  color: #766d70;
+  cursor: not-allowed;
+}
+
+.currency-options {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+
+.currency-options button {
+  min-width: 0;
+  min-height: 42px;
+  width: 100%;
+  padding: 0.45rem 0.2rem;
+  border: 1px solid var(--rose);
+  border-radius: 10px;
+  background: #2b2225;
+  color: var(--charcoal);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.8rem;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.currency-options button.is-selected {
+  border-color: var(--burgundy);
+  background: var(--burgundy);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.currency-options button:hover:not(.is-selected) {
+  border-color: var(--rose);
+  background: var(--light-pink);
+  color: var(--charcoal);
+  transform: translateY(-1px);
+}
+
+.currency-options button:focus-visible {
+  outline: 3px solid rgba(217, 106, 134, 0.45);
+  outline-offset: 2px;
+}
+
+:root:not([data-theme='dark']) .currency-options button {
+  border-color: rgba(183, 46, 85, 0.3);
+  background: white;
+  color: var(--burgundy);
+}
+
+:root:not([data-theme='dark']) .currency-options button:hover {
+  border-color: var(--burgundy);
+  background: var(--light-pink);
+  color: var(--burgundy-deep);
+}
+
+:root:not([data-theme='dark']) .currency-options button.is-selected {
+  border-color: var(--burgundy);
+  background: var(--burgundy);
+  color: white;
 }
 
 .form__actions {
@@ -694,6 +1053,10 @@ p {
   list-style: none;
 }
 
+.about__why {
+  margin-top: 3.5rem;
+}
+
 .about__pills li {
   background: white;
   border: 1px solid var(--blush);
@@ -783,6 +1146,12 @@ p {
   gap: 0.45rem;
 }
 
+.footer__contact-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
 .footer__bar {
   margin-top: 2rem;
   padding-top: 1rem;
@@ -799,6 +1168,42 @@ p {
   border: 0;
   padding: 0 0.6rem 0 0;
   cursor: pointer;
+}
+
+.review-modal__card {
+  width: min(500px, 100%);
+}
+
+.review-rating {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.review-rating legend {
+  margin-bottom: 0.4rem;
+  color: var(--charcoal);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.review-rating__stars {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.review-rating__stars button {
+  display: grid;
+  place-items: center;
+  border: 0;
+  padding: 0.2rem;
+  background: transparent;
+  color: var(--border);
+  cursor: pointer;
+}
+
+.review-rating__stars button.is-selected {
+  color: var(--burgundy);
 }
 
 .wa-float {
@@ -838,6 +1243,38 @@ p {
   padding: 1.5rem;
 }
 
+.visitor-modal {
+  background: rgba(12, 9, 10, 0.78);
+  backdrop-filter: blur(6px);
+}
+
+.visitor-modal__card {
+  width: min(420px, 100%);
+  border: 1px solid var(--gold);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
+}
+
+.whatsapp-choice__card {
+  width: min(440px, 100%);
+}
+
+.whatsapp-choice__actions {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.whatsapp-choice__actions .btn {
+  gap: 0.5rem;
+}
+
+.whatsapp-choice__cancel {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0.35rem;
+}
+
 .reveal {
   opacity: 0;
   transform: translateY(16px);
@@ -847,6 +1284,54 @@ p {
 .reveal.is-visible {
   opacity: 1;
   transform: none;
+}
+
+:root[data-theme='dark'] .nav {
+  background: rgba(23, 20, 22, 0.92);
+}
+
+:root[data-theme='dark'] .nav__toggle,
+:root[data-theme='dark'] .product-card,
+:root[data-theme='dark'] .feature-card,
+:root[data-theme='dark'] .steps__item,
+:root[data-theme='dark'] .create__panel,
+:root[data-theme='dark'] .filters button,
+:root[data-theme='dark'] .review-card,
+:root[data-theme='dark'] .about__pills li,
+:root[data-theme='dark'] .modal__card {
+  background: #211b1e;
+}
+
+:root[data-theme='dark'] .visitor-modal__card {
+  background: #302226;
+}
+
+:root[data-theme='dark'] .nav__drawer,
+:root[data-theme='dark'] .form input,
+:root[data-theme='dark'] .form select,
+:root[data-theme='dark'] .form textarea {
+  background: #1d181a;
+}
+
+:root[data-theme='dark'] .form input,
+:root[data-theme='dark'] .form select,
+:root[data-theme='dark'] .form textarea {
+  color: var(--charcoal);
+}
+
+:root[data-theme='dark'] .form select:hover {
+  background: #2a1e22;
+  border-color: var(--rose);
+}
+
+:root[data-theme='dark'] .form select option {
+  background: #211b1e;
+  color: var(--charcoal);
+}
+
+:root[data-theme='dark'] .btn--light {
+  background: #f5edef;
+  color: #8e1f3f;
 }
 
 @media (min-width: 700px) {

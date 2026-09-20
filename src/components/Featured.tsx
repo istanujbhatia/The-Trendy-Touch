@@ -14,9 +14,13 @@ export function Featured() {
         </header>
         <div className="product-grid">
           {bouquets.map((item) => (
-            <article key={item.id} className="product-card reveal">
+            <article key={item.id} className="product-card">
               <div className="product-card__media">
-                <img src={item.image} alt={item.name} />
+                <img
+                  className={item.id === 'rose-surprise' ? 'product-card__image--top' : undefined}
+                  src={item.image}
+                  alt={item.name}
+                />
                 <span className="badge">{item.occasion}</span>
               </div>
               <div className="product-card__body">
